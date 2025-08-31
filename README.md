@@ -9,6 +9,11 @@ The HTML to Markdown converter for PHP
 [Code example](#code-example) | [How to Install](#how-to-install) | [How to Contribute](#how-to-contribute) | [Author & Community](#author--community)
 
 
+Fork
+--------
+
+This is a fork from [Elephant418's Markdownify](https://github.com/Elephant418/Markdownify) (which appears abandoned), in order to address issues with PHP 8.4 compatibility.
+
 
 Code example
 --------
