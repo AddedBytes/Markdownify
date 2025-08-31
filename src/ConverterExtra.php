@@ -126,7 +126,7 @@ class ConverterExtra extends Converter
      * @param int $level 1-6
      * @return void
      */
-    protected function handleHeader($level)
+    protected function handleHeader(int $level): void
     {
         if ($this->parser->isStartTag) {
             $this->parser->tagAttributes['cssSelector'] = $this->getCurrentCssSelector();
@@ -147,7 +147,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_a_parser()
+    protected function handleTag_a_parser(): void
     {
         parent::handleTag_a_parser();
         $this->parser->tagAttributes['cssSelector'] = $this->getCurrentCssSelector();
@@ -160,7 +160,7 @@ class ConverterExtra extends Converter
      * @param string $buffer
      * @return string The markdownified link
      */
-    protected function handleTag_a_converter($tag, $buffer)
+    protected function handleTag_a_converter(array $tag, string $buffer): string
     {
         $output = parent::handleTag_a_converter($tag, $buffer);
         if (!empty($tag['cssSelector'])) {
@@ -177,7 +177,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_abbr()
+    protected function handleTag_abbr(): void
     {
         if ($this->parser->isStartTag) {
             $this->stack();
@@ -206,7 +206,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function flushStacked_abbr()
+    protected function flushStacked_abbr(): void
     {
         $out = [];
         foreach ($this->stack['abbr'] as $k => $tag) {
@@ -227,7 +227,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_table()
+    protected function handleTag_table(): void
     {
         if ($this->parser->isStartTag) {
             // check if upcoming table can be converted
@@ -255,7 +255,7 @@ class ConverterExtra extends Converter
                         $regEx .= $td . $this->tdSubstitute;
                     }
                     $regEx = sprintf($this->tableLookaheadBody, $regEx);
-                    if (preg_match($regEx, $this->parser->html, $matches, null, strlen($matches[0]))) {
+                    if (preg_match($regEx, $this->parser->html, $matches, 0, strlen($matches[0]))) {
                         // this is a markdownable table tag!
                         $this->table = [
                             'rows' => [],
@@ -330,7 +330,7 @@ class ConverterExtra extends Converter
      * @param int $col
      * @return void
      */
-    protected function alignTdContent(&$content, $col)
+    protected function alignTdContent(string &$content, int $col): void
     {
         if (!isset($this->table['aligns'][$col])) {
             $this->table['aligns'][$col] = 'left';
@@ -358,7 +358,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_tr()
+    protected function handleTag_tr(): void
     {
         if ($this->parser->isStartTag) {
             $this->col = -1;
@@ -373,7 +373,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_td()
+    protected function handleTag_td(): void
     {
         if ($this->parser->isStartTag) {
             $this->col++;
@@ -397,7 +397,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_th()
+    protected function handleTag_th(): void
     {
         if (!$this->keepHTML && !isset($this->table['rows'][1]) && !isset($this->table['aligns'][$this->col + 1])) {
             if (isset($this->parser->tagAttributes['align'])) {
@@ -415,7 +415,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_dl()
+    protected function handleTag_dl(): void
     {
         if (!$this->parser->isStartTag) {
             $this->setLineBreaks(2);
@@ -428,7 +428,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      **/
-    protected function handleTag_dt()
+    protected function handleTag_dt(): void
     {
         if (!$this->parser->isStartTag) {
             $this->setLineBreaks(1);
@@ -441,7 +441,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_dd()
+    protected function handleTag_dd(): void
     {
         if ($this->parser->isStartTag) {
             if (substr(ltrim($this->parser->html), 0, 3) == '<p>') {
@@ -469,7 +469,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_fnref()
+    protected function handleTag_fnref(): void
     {
         $this->out('[^' . $this->parser->tagAttributes['target'] . ']');
     }
@@ -481,7 +481,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_fn()
+    protected function handleTag_fn(): void
     {
         if ($this->parser->isStartTag) {
             $this->out('[^' . $this->parser->tagAttributes['name'] . ']:');
@@ -499,7 +499,7 @@ class ConverterExtra extends Converter
      * @param void
      * @return void
      */
-    protected function handleTag_footnotes()
+    protected function handleTag_footnotes(): void
     {
         if (!$this->parser->isStartTag) {
             $this->setLineBreaks(2);
@@ -512,7 +512,7 @@ class ConverterExtra extends Converter
      * @param string $HTML input
      * @return string Markdown formatted output
      */
-    public function parseString($html)
+    public function parseString(string $html): string
     {
         /** TODO: custom markdown-extra options, e.g. titles & classes **/
         // <sup id="fnref:..."><a href"#fn..." rel="footnote">...</a></sup>
@@ -545,7 +545,7 @@ class ConverterExtra extends Converter
      * @param array $matches
      * @return string
      */
-    protected function _makeFootnotes($matches)
+    protected function _makeFootnotes(array $matches): string
     {
         // <li id="fn:1">
         //   ...
@@ -568,9 +568,9 @@ class ConverterExtra extends Converter
      * handle <a> tags parsing
      *
      * @param void
-     * @return void
+     * @return string
      */
-    protected function getCurrentCssSelector()
+    protected function getCurrentCssSelector(): string
     {
         $cssSelector = '';
         if (isset($this->parser->tagAttributes['id'])) {

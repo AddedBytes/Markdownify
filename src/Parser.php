@@ -4,7 +4,7 @@ namespace Markdownify;
 
 class Parser
 {
-    public static $skipWhitespace = true;
+    public static bool $skipWhitespace = true;
     public static $a_ord;
     public static $z_ord;
     public static $special_ords;
@@ -14,7 +14,7 @@ class Parser
      *
      * @var array<string>
      */
-    public $emptyTags = [
+    public array $emptyTags = [
         'br',
         'hr',
         'input',
@@ -31,7 +31,7 @@ class Parser
      *
      * @var array<string>
      */
-    public $preformattedTags = [
+    public array $preformattedTags = [
         'script',
         'style',
         'pre',
@@ -43,14 +43,14 @@ class Parser
      *
      * @var bool
      */
-    public $noTagsInCode = false;
+    public bool $noTagsInCode = false;
 
     /**
      * html to be parsed
      *
      * @var string
      */
-    public $html = '';
+    public string $html = '';
 
     /**
      * node type:
@@ -63,7 +63,7 @@ class Parser
      *
      * @var string
      */
-    public $nodeType = '';
+    public string $nodeType = '';
 
     /**
      * current node content, i.e. either a
@@ -72,7 +72,7 @@ class Parser
      *
      * @var string
      */
-    public $node = '';
+    public string $node = '';
 
     /**
      * wether current node is an opening tag (<a>) or not (</a>)
@@ -81,56 +81,56 @@ class Parser
      *
      * @var bool | null
      */
-    public $isStartTag = null;
+    public bool|null $isStartTag = null;
 
     /**
      * wether current node is an empty tag (<br />) or not (<a></a>)
      *
      * @var bool | null
      */
-    public $isEmptyTag = null;
+    public bool|null $isEmptyTag = null;
 
     /**
      * tag name
      *
      * @var string | null
      */
-    public $tagName = '';
+    public string|null $tagName = '';
 
     /**
      * attributes of current tag
      *
      * @var array (attribName=>value) | null
      */
-    public $tagAttributes = null;
+    public array|null $tagAttributes = null;
 
     /**
      * whether or not the actual context is a inline context
      *
      * @var bool | null
      */
-    public $isInlineContext = null;
+    public bool|null $isInlineContext = null;
 
     /**
      * whether the current tag is a block element
      *
      * @var bool | null
      */
-    public $isBlockElement = null;
+    public bool|null $isBlockElement = null;
 
     /**
      * whether the previous tag (browser) is a block element
      *
      * @var bool | null
      */
-    public $isNextToInlineContext = null;
+    public bool|null $isNextToInlineContext = null;
 
     /**
      * keep whitespace
      *
      * @var int
      */
-    public $keepWhitespace = 0;
+    public int $keepWhitespace = 0;
 
     /**
      * list of open tags
@@ -138,7 +138,7 @@ class Parser
      *
      * @var array
      */
-    public $openTags = [];
+    public array $openTags = [];
 
     /**
      * list of block elements
@@ -146,7 +146,7 @@ class Parser
      * @var array
      * TODO: what shall we do with <del> and <ins> ?!
      */
-    public $blockElements = [
+    public array $blockElements = [
         // tag name => <bool> is block
         // block elements
         'address' => true,

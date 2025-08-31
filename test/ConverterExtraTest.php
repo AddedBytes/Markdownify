@@ -2,9 +2,9 @@
 
 namespace Test\Markdownify;
 
+use Generator;
 use Markdownify\ConverterExtra;
-
-require_once(__DIR__ . '/../vendor/autoload.php');
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ConverterExtraTest extends ConverterTestCase
 {
@@ -12,7 +12,7 @@ class ConverterExtraTest extends ConverterTestCase
 
     /* UTILS
      *************************************************************************/
-    public function setUp()
+    public function setUp(): void
     {
         $this->converter = new ConverterExtra;
     }
@@ -20,10 +20,8 @@ class ConverterExtraTest extends ConverterTestCase
 
     /* HEADING TEST METHODS
      *************************************************************************/
-    /**
-     * @dataProvider providerHeadingConversion
-     */
-    public function testHeadingConversion_withAttribute($level, $attributesHTML, $attributesMD = null)
+    #[DataProvider('providerHeadingConversion_withAttribute')]
+    public function testHeadingConversion_withAttribute(int $level, string $attributesHTML, string|null $attributesMD = null)
     {
         $innerHTML = 'Heading ' . $level;
         $md = str_pad('', $level, '#') . ' ' . $innerHTML . $attributesMD;
@@ -31,47 +29,49 @@ class ConverterExtraTest extends ConverterTestCase
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerHeadingConversion()
+    public static function providerHeadingConversion_withAttribute(): Generator
     {
         $attributes = [' id="idAttribute"', ' class=" class1  class2 "'];
-        $data = [];
         for ($i = 1; $i <= 6; $i++) {
-            $data[] = [$i, '', ''];
-            $data[] = [$i, $attributes[0], ' {#idAttribute}'];
-            $data[] = [$i, $attributes[1], ' {.class1.class2}'];
-            $data[] = [$i, $attributes[0] . $attributes[1], ' {#idAttribute.class1.class2}'];
+            yield [$i, '', ''];
+            yield [$i, $attributes[0], ' {#idAttribute}'];
+            yield [$i, $attributes[1], ' {.class1.class2}'];
+            yield [$i, $attributes[0] . $attributes[1], ' {#idAttribute.class1.class2}'];
         }
-        return $data;
     }
 
 
     /* LINK TEST METHODS
      *************************************************************************/
-    public function providerLinkConversion()
+    public static function providerLinkConversion(): Generator
     {
-        $data = parent::providerLinkConversion();
-
         // Link with href + title + id attributes
         $data['url-title-id']['md'] = 'This is [an example][1]{#myLink} inline link.
 
  [1]: http://example.com/ "Title"';
+        $data['url-title-id']['html'] = '<p>This is <a href="http://example.com/" title="Title" id="myLink">an example</a> inline link.</p>';
 
         // Link with href + title + class attributes
         $data['url-title-class']['md'] = 'This is [an example][1]{.external} inline link.
 
  [1]: http://example.com/ "Title"';
+        $data['url-title-class']['html'] = '<p>This is <a href="http://example.com/" title="Title" class="external">an example</a> inline link.</p>';
 
         // Link with href + title + multiple classes attributes
         $data['url-title-multiple-class']['md'] = 'This is [an example][1]{.class1.class2} inline link.
 
  [1]: http://example.com/ "Title"';
+        $data['url-title-multiple-class']['html'] = '<p>This is <a href="http://example.com/" title="Title" class=" class1  class2 ">an example</a> inline link.</p>';
 
         // Link with href + title + multiple classes attributes
         $data['url-title-multiple-class-id']['md'] = 'This is [an example][1]{#myLink.class1.class2} inline link.
 
  [1]: http://example.com/ "Title"';
+        $data['url-title-multiple-class-id']['html'] = '<p>This is <a href="http://example.com/" title="Title" class=" class1  class2 " id="myLink">an example</a> inline link.</p>';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 

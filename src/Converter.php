@@ -18,28 +18,28 @@ class Converter
      *
      * @var parseHTML
      */
-    protected $parser;
+    protected Parser $parser;
 
     /**
      * markdown output
      *
      * @var string
      */
-    protected $output;
+    protected string $output;
 
     /**
      * stack with tags which where not converted to html
      *
      * @var array<string>
      */
-    protected $notConverted = [];
+    protected array $notConverted = [];
 
     /**
      * skip conversion to markdown
      *
      * @var bool
      */
-    protected $skipConversion = false;
+    protected bool $skipConversion = false;
 
     /* options */
 
@@ -48,21 +48,21 @@ class Converter
      *
      * @var bool
      */
-    protected $keepHTML = false;
+    protected bool $keepHTML = false;
 
     /**
      * wrap output, set to 0 to skip wrapping
      *
      * @var int
      */
-    protected $bodyWidth = 0;
+    protected int $bodyWidth = 0;
 
     /**
      * minimum body width
      *
      * @var int
      */
-    protected $minBodyWidth = 25;
+    protected int $minBodyWidth = 25;
 
     /**
      * position where the link reference will be displayed
@@ -70,7 +70,7 @@ class Converter
      *
      * @var int
      */
-    protected $linkPosition;
+    protected int $linkPosition;
     const LINK_AFTER_CONTENT = 0;
     const LINK_AFTER_PARAGRAPH = 1;
     const LINK_IN_PARAGRAPH = 2;
@@ -80,21 +80,21 @@ class Converter
      *
      * @var array<string>
      */
-    protected $buffer = [];
+    protected array $buffer = [];
 
     /**
      * stores current buffers
      *
      * @var array<string>
      */
-    protected $footnotes = [];
+    protected array $footnotes = [];
 
     /**
      * tags with elements which can be handled by markdown
      *
      * @var array<string>
      */
-    protected $isMarkdownable = [
+    protected array $isMarkdownable = [
         'p' => [],
         'ul' => [],
         'ol' => [],
@@ -130,7 +130,7 @@ class Converter
      *
      * @var array<string>
      */
-    protected $ignore = [
+    protected array $ignore = [
         'html',
         'body',
     ];
@@ -140,7 +140,7 @@ class Converter
      *
      * @var array<string>
      */
-    protected $drop = [
+    protected array $drop = [
         'script',
         'head',
         'style',
@@ -156,7 +156,7 @@ class Converter
      *
      * @var array<string>
      */
-    protected $allowMixedChildren = [
+    protected array $allowMixedChildren = [
         'li'
     ];
 
@@ -166,7 +166,7 @@ class Converter
      *
      * @var array<string>
      */
-    protected $wrappableIndents = [
+    protected array $wrappableIndents = [
         '\*   ', // ul
         '\d.  ', // ol
         '\d\d. ', // ol
@@ -182,7 +182,7 @@ class Converter
      *
      * TODO: what's with block chars / sequences at the beginning of a block?
      */
-    protected $escapeInText = [
+    protected array $escapeInText = [
         '\*\*([^*]+)\*\*' => '\*\*$1\*\*', // strong
         '\*([^*]+)\*' => '\*$1\*', // em
         '__(?! |_)(.+)(?!<_| )__' => '\_\_$1\_\_', // strong
@@ -199,33 +199,33 @@ class Converter
      *
      * @var bool
      */
-    protected $lastWasBlockTag = false;
+    protected bool $lastWasBlockTag = false;
 
     /**
      * name of last closed tag
      *
      * @var string
      */
-    protected $lastClosedTag = '';
+    protected string $lastClosedTag = '';
 
     /**
      * number of line breaks before next inline output
      */
-    protected $lineBreaks = 0;
+    protected int $lineBreaks = 0;
 
     /**
      * node stack, e.g. for <a> and <abbr> tags
      *
      * @var array<array>
      */
-    protected $stack = [];
+    protected array $stack = [];
 
     /**
      * current indentation
      *
      * @var string
      */
-    protected $indent = '';
+    protected string $indent = '';
 
     /**
      * @var string
@@ -242,7 +242,7 @@ class Converter
      *             defaults to true (HTML will be kept)
      * @return void
      */
-    public function __construct($linkPosition = self::LINK_AFTER_CONTENT, $bodyWidth = MDFY_BODYWIDTH, $keepHTML = MDFY_KEEPHTML)
+    public function __construct(int $linkPosition = self::LINK_AFTER_CONTENT, bool $bodyWidth = MDFY_BODYWIDTH, bool $keepHTML = MDFY_KEEPHTML)
     {
         $this->linkPosition = $linkPosition;
         $this->keepHTML = $keepHTML;
@@ -275,7 +275,7 @@ class Converter
      * @param string $html
      * @return string markdown formatted
      */
-    public function parseString($html)
+    public function parseString(string $html): string
     {
         $this->resetState();
 
@@ -291,7 +291,7 @@ class Converter
      * @param int $linkPosition
      * @return void
      */
-    public function setLinkPosition($linkPosition)
+    public function setLinkPosition(int $linkPosition): void
     {
         $this->linkPosition = $linkPosition;
     }
@@ -302,7 +302,7 @@ class Converter
      * @param bool $linkPosition
      * @return void
      */
-    public function setKeepHTML($keepHTML)
+    public function setKeepHTML(bool $keepHTML): void
     {
         $this->keepHTML = $keepHTML;
     }
@@ -314,7 +314,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function parse()
+    protected function parse(): void
     {
         $this->output = '';
 
@@ -412,7 +412,7 @@ class Converter
      * @param void
      * @return bool
      */
-    protected function isMarkdownable()
+    protected function isMarkdownable(): bool
     {
         if (!isset($this->isMarkdownable[$this->parser->tagName])) {
             // simply not markdownable
@@ -459,7 +459,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function flushFootnotes()
+    protected function flushFootnotes(): void
     {
         $out = false;
         foreach ($this->footnotes as $k => $tag) {
@@ -483,7 +483,7 @@ class Converter
      * @param array $tag
      * @return string link reference
      */
-    protected function getLinkReference($tag)
+    protected function getLinkReference(array $tag): string
     {
         return $tag['href'] . (isset($tag['title']) ? ' "' . $tag['title'] . '"' : '');
     }
@@ -494,7 +494,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function flushLinebreaks()
+    protected function flushLinebreaks(): void
     {
         if ($this->lineBreaks && !empty($this->output)) {
             $this->out(str_repeat("\n" . $this->indent, $this->lineBreaks), true);
@@ -508,7 +508,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTagToText()
+    protected function handleTagToText(): void
     {
         if (!$this->keepHTML) {
             if (!$this->parser->isStartTag && $this->parser->isBlockElement) {
@@ -594,7 +594,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleText()
+    protected function handleText(): void
     {
         if ($this->hasParent('pre') && strpos($this->parser->node, "\n") !== false) {
             $this->parser->node = str_replace("\n", "\n" . $this->indent, $this->parser->node);
@@ -619,12 +619,12 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_em()
+    protected function handleTag_em(): void
     {
         $this->out('_', true);
     }
 
-    protected function handleTag_i()
+    protected function handleTag_i(): void
     {
         $this->handleTag_em();
     }
@@ -635,12 +635,12 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_strong()
+    protected function handleTag_strong(): void
     {
         $this->out('**', true);
     }
 
-    protected function handleTag_b()
+    protected function handleTag_b(): void
     {
         $this->handleTag_strong();
     }
@@ -651,7 +651,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h1()
+    protected function handleTag_h1(): void
     {
         $this->handleHeader(1);
     }
@@ -662,7 +662,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h2()
+    protected function handleTag_h2(): void
     {
         $this->handleHeader(2);
     }
@@ -673,7 +673,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h3()
+    protected function handleTag_h3(): void
     {
         $this->handleHeader(3);
     }
@@ -684,7 +684,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h4()
+    protected function handleTag_h4(): void
     {
         $this->handleHeader(4);
     }
@@ -695,7 +695,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h5()
+    protected function handleTag_h5(): void
     {
         $this->handleHeader(5);
     }
@@ -706,7 +706,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_h6()
+    protected function handleTag_h6(): void
     {
         $this->handleHeader(6);
     }
@@ -717,7 +717,7 @@ class Converter
      * @param int $level 1-6
      * @return void
      */
-    protected function handleHeader($level)
+    protected function handleHeader(int $level): void
     {
         if ($this->parser->isStartTag) {
             $this->out(str_repeat('#', $level) . ' ', true);
@@ -732,7 +732,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_p()
+    protected function handleTag_p(): void
     {
         if (!$this->parser->isStartTag) {
             $this->setLineBreaks(2);
@@ -745,7 +745,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_a()
+    protected function handleTag_a(): void
     {
         if ($this->parser->isStartTag) {
             $this->buffer();
@@ -765,7 +765,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_a_parser()
+    protected function handleTag_a_parser(): void
     {
         if (isset($this->parser->tagAttributes['title'])) {
             $this->parser->tagAttributes['title'] = $this->decode($this->parser->tagAttributes['title']);
@@ -782,7 +782,7 @@ class Converter
      * @param string $buffer
      * @return string The markdownified link
      */
-    protected function handleTag_a_converter($tag, $buffer)
+    protected function handleTag_a_converter(array $tag, string $buffer): string
     {
         if (empty($tag['href']) && empty($tag['title'])) {
             // empty links... testcase mania, who would possibly do anything like that?!
@@ -831,7 +831,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_img()
+    protected function handleTag_img(): void
     {
         if (!$this->parser->isStartTag) {
             return; // just to be sure this is really an empty tag...
@@ -904,7 +904,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_code()
+    protected function handleTag_code(): void
     {
         if ($this->hasParent('pre')) {
             // ignore code blocks inside <pre>
@@ -943,7 +943,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_pre()
+    protected function handleTag_pre(): void
     {
         if ($this->keepHTML && $this->parser->isStartTag) {
             // check if a simple <code> follows
@@ -968,7 +968,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_blockquote()
+    protected function handleTag_blockquote(): void
     {
         $this->indent('> ');
     }
@@ -979,7 +979,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_ul()
+    protected function handleTag_ul(): void
     {
         if ($this->parser->isStartTag) {
             $this->stack();
@@ -1001,7 +1001,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_ol()
+    protected function handleTag_ol(): void
     {
         // same as above
         $this->parser->tagAttributes['num'] = 0;
@@ -1014,7 +1014,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_li()
+    protected function handleTag_li(): void
     {
         if ($this->parent() == 'ol') {
             $parent =& $this->getStacked('ol');
@@ -1039,7 +1039,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_hr()
+    protected function handleTag_hr(): void
     {
         if (!$this->parser->isStartTag) {
             return; // just to be sure this really is an empty tag
@@ -1054,7 +1054,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function handleTag_br()
+    protected function handleTag_br(): void
     {
         $this->out("  \n" . $this->indent, true);
         $this->parser->html = ltrim($this->parser->html);
@@ -1067,7 +1067,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function stack()
+    protected function stack(): void
     {
         if (!isset($this->stack[$this->parser->tagName])) {
             $this->stack[$this->parser->tagName] = [];
@@ -1081,7 +1081,7 @@ class Converter
      * @param void
      * @return array
      */
-    protected function unstack()
+    protected function unstack(): array
     {
         if (!isset($this->stack[$this->parser->tagName]) || !is_array($this->stack[$this->parser->tagName])) {
             trigger_error('Trying to unstack from empty stack. This must not happen.', E_USER_ERROR);
@@ -1096,7 +1096,7 @@ class Converter
      * @param string $tagName
      * @return array
      */
-    protected function &getStacked($tagName)
+    protected function &getStacked(string $tagName): array
     {
         // no end() so it can be referenced
         return $this->stack[$tagName][count($this->stack[$tagName]) - 1];
@@ -1108,7 +1108,7 @@ class Converter
      * @param int $number
      * @return void
      */
-    protected function setLineBreaks($number)
+    protected function setLineBreaks(int $number): void
     {
         if ($this->lineBreaks < $number) {
             $this->lineBreaks = $number;
@@ -1121,7 +1121,7 @@ class Converter
      * @param void
      * @return void
      */
-    protected function buffer()
+    protected function buffer(): void
     {
         array_push($this->buffer, '');
     }
@@ -1132,7 +1132,7 @@ class Converter
      * @param void
      * @return string
      */
-    protected function unbuffer()
+    protected function unbuffer(): string
     {
         return array_pop($this->buffer);
     }
@@ -1146,7 +1146,7 @@ class Converter
      * @param boolean $nowrap
      * @return void
      */
-    protected function out($put, $nowrap = false)
+    protected function out(string $put, bool $nowrap = false): void
     {
         if (empty($put)) {
             return;
@@ -1203,7 +1203,7 @@ class Converter
      * @param bool $output add indendation to output
      * @return void
      */
-    protected function indent($str, $output = true)
+    protected function indent(string $str, bool $output = true): void
     {
         if ($this->parser->isStartTag) {
             $this->indent .= $str;
@@ -1221,7 +1221,7 @@ class Converter
      * @author derernst@gmx.ch <http://www.php.net/manual/en/function.html-entity-decode.php#68536>
      * @author Milian Wolff <http://milianw.de>
      */
-    protected function decode($text)
+    protected function decode(string $text): string
     {
         return htmlspecialchars_decode($text, ENT_QUOTES);
     }
@@ -1235,7 +1235,7 @@ class Converter
      * @author dtorop 932 at hotmail dot com <http://www.php.net/manual/en/function.strlen.php#37975>
      * @author Milian Wolff <http://milianw.de>
      */
-    protected function strlen($str)
+    protected function strlen(string $str): int
     {
         if (function_exists('mb_strlen')) {
             return mb_strlen($str, 'UTF-8');
@@ -1252,7 +1252,7 @@ class Converter
      * @param string $what
      * @return string
      */
-    protected function wordwrap($str, $width, $break, $cut = false)
+    protected function wordwrap(string $str, int $width, string $break, bool $cut = false): string
     {
         if (!$cut) {
             $regexp = '#^(?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){1,' . $width . '}\b#';
@@ -1279,7 +1279,7 @@ class Converter
      * @param string $tagName
      * @return bool
      */
-    protected function hasParent($tagName)
+    protected function hasParent(string $tagName): bool
     {
         return in_array($tagName, $this->parser->openTags);
     }
@@ -1290,7 +1290,7 @@ class Converter
      * @param void
      * @return string $tagName
      */
-    protected function parent()
+    protected function parent(): string
     {
         return end($this->parser->openTags);
     }
@@ -1298,7 +1298,7 @@ class Converter
     /**
      * Trims whitespace in block-level elements, on the left side.
      */
-    protected function fixBlockElementSpacing()
+    protected function fixBlockElementSpacing(): void
     {
         if ($this->parser->isStartTag) {
             $this->parser->html = ltrim($this->parser->html);
@@ -1315,7 +1315,7 @@ class Converter
      *   * leading: `<strong> Text</strong>` becomes ` <strong>Text</strong>`
      *   * trailing: `<strong>Text </strong>` becomes `<strong>Text</strong> `
      */
-    protected function fixInlineElementSpacing()
+    protected function fixInlineElementSpacing(): void
     {
         if ($this->parser->isStartTag && !$this->parser->isEmptyTag) {
             // move spaces after the start element to before the element
@@ -1342,7 +1342,7 @@ class Converter
      * Resetting the state forces the instance to behave as a fresh instance.
      * Ideal for running within a loop where you want to maintain a single instance.
      */
-    protected function resetState()
+    protected function resetState(): void
     {
         $this->notConverted = [];
         $this->skipConversion = false;

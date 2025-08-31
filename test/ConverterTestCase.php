@@ -2,11 +2,12 @@
 
 namespace Test\Markdownify;
 
+use Generator;
 use Markdownify\Converter;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
-require_once(__DIR__ . '/../vendor/autoload.php');
-
-class ConverterTestCase extends \PHPUnit_Framework_TestCase
+class ConverterTestCase extends TestCase
 {
 
 
@@ -18,31 +19,25 @@ class ConverterTestCase extends \PHPUnit_Framework_TestCase
     /* UNICODE TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerUnicodeConversion
-     */
-    public function testUnicodeConversion($md)
+    #[DataProvider('providerUnicodeConversion')]
+    public function testUnicodeConversion(string $md)
     {
         $html = '<p>' . $md . '</p>';
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerUnicodeConversion()
+    public static function providerUnicodeConversion(): Generator
     {
-        return [
-            ['regular ascii'],
-            ['مرحبا بك'],
-        ];
+        yield ['regular ascii'];
+        yield ['مرحبا بك'];
     }
 
 
     /* HEADING TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerHeadingConversion
-     */
-    public function testHeadingConversion_withAttribute($level, $attributesHTML, $attributesMD = null)
+    #[DataProvider('providerHeadingConversion')]
+    public function testHeadingConversion_withAttribute(int $level, string $attributesHTML)
     {
         $innerHTML = 'Heading ' . $level;
         if (empty($attributesHTML)) {
@@ -56,66 +51,58 @@ class ConverterTestCase extends \PHPUnit_Framework_TestCase
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerHeadingConversion()
+    public static function providerHeadingConversion(): Generator
     {
         $attributes = [' id="idAttribute"', ' class=" class1  class2 "'];
-        $data = [];
         for ($i = 1; $i <= 6; $i++) {
-            $data[] = [$i, ''];
-            $data[] = [$i, $attributes[0]];
-            $data[] = [$i, $attributes[1]];
-            $data[] = [$i, $attributes[0] . $attributes[1]];
+            yield [$i, ''];
+            yield [$i, $attributes[0]];
+            yield [$i, $attributes[1]];
+            yield [$i, $attributes[0] . $attributes[1]];
         }
-        return $data;
     }
 
-    /**
-     * @dataProvider providerHeadingConversionEscape
-     */
-    public function testHeadingConversionEscape($html, $md)
+    #[DataProvider('providerHeadingConversionEscape')]
+    public function testHeadingConversionEscape(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerHeadingConversionEscape()
+    public static function providerHeadingConversionEscape(): Generator
     {
-        $data = [];
-        $data['level1']['html'] = '# Heading 1';
-        $data['level1']['md'] = '\# Heading 1';
-        $data['level2']['html'] = '## Heading 2';
-        $data['level2']['md'] = '\## Heading 2';
-        return $data;
+        yield [
+            'html' => '# Heading 1',
+            'md' => '\# Heading 1',
+        ];
+        yield [
+            'html' => '## Heading 2',
+            'md' => '\## Heading 2',
+        ];
     }
 
 
     /* ESCAPE TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerAutoescapeConversion
-     */
-    public function testAutoescapeConversion($html, $md)
+    #[DataProvider('providerAutoescapeConversion')]
+    public function testAutoescapeConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerAutoescapeConversion()
+    public static function providerAutoescapeConversion(): Generator
     {
-        return [
-            ['AT&amp;T', 'AT&T'],
-            ['4 &lt; 5', '4 < 5'],
-            ['&copy;', '&copy;']
-        ];
+        yield ['AT&amp;T', 'AT&T'];
+        yield ['4 &lt; 5', '4 < 5'];
+        yield ['&copy;', '&copy;'];
     }
 
 
     /* STRIP TAGS OPTION
      *************************************************************************/
 
-    /**
-     * @dataProvider providerKeepHTMLOption
-     */
-    public function testKeepHTMLOption($html, $mdWithTag, $mdWithoutTag)
+    #[DataProvider('providerKeepHTMLOption')]
+    public function testKeepHTMLOption(string $html, string $mdWithTag, string $mdWithoutTag)
     {
         $this->converter->setKeepHTML(false);
         $this->assertEquals($mdWithoutTag, $this->converter->parseString($html));
@@ -123,71 +110,75 @@ class ConverterTestCase extends \PHPUnit_Framework_TestCase
         $this->assertEquals($mdWithTag, $this->converter->parseString($html));
     }
 
-    public function providerKeepHTMLOption()
+    public static function providerKeepHTMLOption(): Generator
     {
-        $data = [];
-
         // Issue #16
-        $data['image']['html'] = '<img title="a012.gif" src="http://images/problems/a012.gif" alt="a012.gif" width="374" height="204" />';
-        $data['image']['mdWithTag'] = '<img title="a012.gif" src="http://images/problems/a012.gif" alt="a012.gif" width="374" height="204" />';
-        $data['image']['mdWithoutTag'] = '![a012.gif][1]
+        yield [
+            'html' => '<img title="a012.gif" src="http://images/problems/a012.gif" alt="a012.gif" width="374" height="204" />',
+            'mdWithTag' => '<img title="a012.gif" src="http://images/problems/a012.gif" alt="a012.gif" width="374" height="204" />',
+            'mdWithoutTag' => '![a012.gif][1]
 
- [1]: http://images/problems/a012.gif "a012.gif"';
+ [1]: http://images/problems/a012.gif "a012.gif"',
+        ];
 
         // Issue #23
-        $data['target']['html'] = '<p>See <a href="https://github.com/quilljs/quill/issues/81" target="_blank">https://github.com/quilljs/quill/issues/81</a></p>';
-        $data['target']['mdWithTag'] = 'See <a href="https://github.com/quilljs/quill/issues/81" target="_blank">https://github.com/quilljs/quill/issues/81</a>';
-        $data['target']['mdWithoutTag'] = 'See <https://github.com/quilljs/quill/issues/81>';
+        yield [
+            'html' => '<p>See <a href="https://github.com/quilljs/quill/issues/81" target="_blank">https://github.com/quilljs/quill/issues/81</a></p>',
+            'mdWithTag' => 'See <a href="https://github.com/quilljs/quill/issues/81" target="_blank">https://github.com/quilljs/quill/issues/81</a>',
+            'mdWithoutTag' => 'See <https://github.com/quilljs/quill/issues/81>',
+        ];
 
         // Issue #25
-        $data['u']['html'] = '<span><u>Some text</u></span>';
-        $data['u']['mdWithTag'] = '<span><u>Some text</u></span>';
-        $data['u']['mdWithoutTag'] = 'Some text';
-
-        return $data;
+        yield [
+            'html' => '<span><u>Some text</u></span>',
+            'mdWithTag' => '<span><u>Some text</u></span>',
+            'mdWithoutTag' => 'Some text',
+        ];
     }
 
 
     /* BLOCKQUOTE TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerBlockquoteConversion
-     */
-    public function testBlockquoteConversion($html, $md)
+    #[DataProvider('providerBlockquoteConversion')]
+    public function testBlockquoteConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerBlockquoteConversion()
+    public static function providerBlockquoteConversion(): Generator
     {
-        $data = [];
-        $data['simple']['html'] = '<blockquote>blockquoted text goes here</blockquote>';
-        $data['simple']['md'] = '> blockquoted text goes here';
-        $data['paragraphs']['html'] = '<blockquote><p>paragraph1</p><p>paragraph2</p></blockquote>';
-        $data['paragraphs']['md'] = '> paragraph1' . PHP_EOL
+        yield [
+            'html' => '<blockquote>blockquoted text goes here</blockquote>',
+            'md' => '> blockquoted text goes here',
+        ];
+        yield [
+            'html' => '<blockquote><p>paragraph1</p><p>paragraph2</p></blockquote>',
+            'md' => '> paragraph1' . PHP_EOL
             . '> ' . PHP_EOL
-            . '> paragraph2';
-        $data['cascade']['html'] = '<blockquote><blockquote>cascading blockquote</blockquote></blockquote>';
-        $data['cascade']['md'] = '> > cascading blockquote';
-        $data['container']['html'] = '<blockquote><h2>This is a header.</h2></blockquote>';
-        $data['container']['md'] = '> ## This is a header.';
-        return $data;
+            . '> paragraph2',
+        ];
+        yield [
+            'html' => '<blockquote><blockquote>cascading blockquote</blockquote></blockquote>',
+            'md' => '> > cascading blockquote',
+        ];
+        yield [
+            'html' => '<blockquote><h2>This is a header.</h2></blockquote>',
+            'md' => '> ## This is a header.',
+        ];
     }
 
 
     /* LISTS TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerListConversion
-     */
-    public function testListConversion($html, $md)
+    #[DataProvider('providerListConversion')]
+    public function testListConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerListConversion()
+    public static function providerListConversion(): Generator
     {
         $data = [];
         $data['ordered']['html'] = '<ol><li>Bird</li><li>McHale</li><li>Parish</li></ol>';
@@ -245,22 +236,22 @@ class ConverterTestCase extends \PHPUnit_Framework_TestCase
             . '          * Dark' . PHP_EOL
             . '      * Blue';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 
     /* CODE TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerCodeConversion
-     */
-    public function testCodeConversion($html, $md)
+    #[DataProvider('providerCodeConversion')]
+    public function testCodeConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerCodeConversion()
+    public static function providerCodeConversion(): Generator
     {
         $data = [];
         $data['inline']['html'] = '<p>Use the <code>printf()</code> function.</p>';
@@ -299,16 +290,16 @@ end tell
         &copy; 2004 Foo Corporation
     </div>';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 
     /* LINK TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerLinkConversion
-     */
+    #[DataProvider('providerLinkConversion')]
     public function testLinkConversion($html, $md, $linkPosition = null)
     {
         if ($linkPosition !== null) {
@@ -317,7 +308,7 @@ end tell
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerLinkConversion()
+    public static function providerLinkConversion(): Generator
     {
         $data = [];
 
@@ -428,22 +419,22 @@ end tell
             . ' [1]: http://www.fillmurray.com/g/200/300' . PHP_EOL
             . ' [2]: http://google.com';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 
     /* EMPHASIS TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerEmphasisConversion
-     */
-    public function testEmphasisConversion($html, $md)
+    #[DataProvider('providerEmphasisConversion')]
+    public function testEmphasisConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerEmphasisConversion()
+    public static function providerEmphasisConversion(): Generator
     {
         $data = [];
         $data['strong']['html'] = '<strong>double asterisks</strong>';
@@ -459,22 +450,22 @@ end tell
         $data['em-escape2']['html'] = '_single asterisks_';
         $data['em-escape2']['md'] = '\_single asterisks\_';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 
     /* RULES TEST METHODS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerRulesConversion
-     */
-    public function testRulesConversion($html, $md)
+    #[DataProvider('providerRulesConversion')]
+    public function testRulesConversion(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
-    public function providerRulesConversion()
+    public static function providerRulesConversion(): Generator
     {
         $data = [];
         $data['hr']['html'] = '<hr>';
@@ -484,23 +475,23 @@ end tell
         $data['escape-']['html'] = '*****************';
         $data['escape-']['md'] = '\***\***\***\***\*****';
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
 
     /* FIX BREAKS TESTS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerFixBreaks
-     */
-    public function testFixBreaks($html, $md)
+    #[DataProvider('providerFixBreaks')]
+    public function testFixBreaks(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
 
-    public function providerFixBreaks()
+    public static function providerFixBreaks(): Generator
     {
         $data = [];
         $data['break1']['html'] = "<strong>Hello,<br>How are you doing?</strong>";
@@ -508,22 +499,22 @@ end tell
         $data['break2']['html'] = "<b>Hey,<br> How you're doing?</b><br><br><b>Sorry<br><br> You can't get through</b>";
         $data['break2']['md'] = "**Hey,  \nHow you're doing?**  \n  \n**Sorry  \n  \nYou can't get through**";
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
     /* FIX TAG SPACES TESTS
      *************************************************************************/
 
-    /**
-     * @dataProvider providerFixTagSpaces
-     */
-    public function testFixTagSpaces($html, $md)
+    #[DataProvider('providerFixTagSpaces')]
+    public function testFixTagSpaces(string $html, string $md)
     {
         $this->assertEquals($md, $this->converter->parseString($html));
     }
 
 
-    public function providerFixTagSpaces()
+    public static function providerFixTagSpaces(): Generator
     {
         $data = [];
         $data['strong']['html'] = "<p>This is<strong> strong</strong> text</p>";
@@ -539,7 +530,9 @@ end tell
 
  [1]: http://example.com";
 
-        return $data;
+        foreach ($data as $key => $item) {
+            yield $item;
+        }
     }
 
     /* FIX STATE RESET
@@ -554,10 +547,10 @@ end tell
         $converter = new Converter();
         $bqOutput = $converter->parseString($blockquote);
 
-        $this->assertContains('>', $bqOutput);
+        $this->assertStringContainsString('>', $bqOutput);
 
         $lbOutput = $converter->parseString($linebreaks);
 
-        $this->assertNotContains('>', $lbOutput);
+        $this->assertStringNotContainsString('>', $lbOutput);
     }
 }
