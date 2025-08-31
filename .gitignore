@@ -8,3 +8,4 @@ composer.lock
 # Local test files
 test.html
 test.php
+.phpunit.result.cache
